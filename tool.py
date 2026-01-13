@@ -1,3 +1,16 @@
+"""
+NeuraL Coverage (NLC) instrumentation adapted from:
+Yuan et al., "Revisiting Neuron Coverage for DNN Testing: A Layer-Wise and Distribution-Aware Criterion", ICSE 2023.
+
+Original implementation:
+- Targets convolutional and recurrent architectures
+- Uses PyTorch forward hooks to collect activations
+
+Extensions in TransFuzz:
+- Generalizes activation collection to transformer-based models (attention and feed-forward submodules)
+- Enables gradient propagation through coverage signals
+"""
+
 import os
 import copy
 import numpy as np
@@ -7,8 +20,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import re
-import constants
 
+PAD_LENGTH = 32
 def scale(out, dim=-1, rmax=1, rmin=0):
     out_max = out.max(dim)[0].unsqueeze(dim)
     out_min = out.min(dim)[0].unsqueeze(dim)
@@ -22,25 +35,12 @@ def scale(out, dim=-1, rmax=1, rmin=0):
     return output_scaled
 
 def is_valid(module):
-    # return (isinstance(module, nn.Linear)
-    #         or isinstance(module, nn.Conv2d)
-    #         or isinstance(module, nn.Conv1d)
-    #         or isinstance(module, nn.Conv3d)
-    #         or isinstance(module, nn.RNN)
-    #         or isinstance(module, nn.LSTM)
-    #         or isinstance(module, nn.GRU)
-    #         )
-    INTERESTING_NAME_RE = re.compile(r"(Wav2Vec2EncoderLayer)")
-    interesting_types = (nn.Linear, nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.RNN, nn.LSTM, nn.GRU,
+    layers_of_interest = (nn.Linear, nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.RNN, nn.LSTM, nn.GRU,
                          nn.MultiheadAttention, nn.TransformerEncoderLayer,
                          nn.TransformerDecoderLayer, nn.TransformerEncoder,
                          nn.TransformerDecoder)
-    
-    class_name = module.__class__.__name__
-
     return (
-        isinstance(module, interesting_types)
-        # or INTERESTING_NAME_RE.search(class_name)
+        isinstance(module, layers_of_interest)
     )
 
 def iterate_module(name, module, name_list, module_list):
@@ -68,13 +68,10 @@ def get_model_layers(model):
             else:
                 name_counter[class_name] += 1
             layer_dict['%s-%d' % (class_name, name_counter[class_name])] = module
-    # DEBUG
-    # print('layer name')
-    # for k in layer_dict.keys():
-    #     print(k, ': ', layer_dict[k])
+
     return layer_dict
 
-def get_layer_output_sizes(model, data, pad_length=constants.PAD_LENGTH, unroll=False, inference_func=None):
+def get_layer_output_sizes(model, data, pad_length=PAD_LENGTH, unroll=False, inference_func=None):
     if not inference_func:
         inference_func = model.__call__
     output_sizes = {}
@@ -121,14 +118,9 @@ def get_layer_output_sizes(model, data, pad_length=constants.PAD_LENGTH, unroll=
                 unrolled_output_sizes[k] = output_sizes[k]
     else:
         unrolled_output_sizes = output_sizes
-    # DEBUG
-    # print('output size')
-    # for k in output_sizes.keys():
-    #     print(k, ': ', output_sizes[k])
     return unrolled_output_sizes
 
-def get_layer_output(model, data, pad_length=constants.PAD_LENGTH, unroll=False, inference_func=None, track_grad=True):
-    # data = data.to('cpu')
+def get_layer_output(model, data, pad_length=PAD_LENGTH, unroll=False, inference_func=None, track_grad=True):
     if not inference_func:
         inference_func = model.__call__
     def calculate_layer_output_dict():
@@ -163,7 +155,6 @@ def get_layer_output(model, data, pad_length=constants.PAD_LENGTH, unroll=False,
         unrolled_layer_output_dict = {}
         for k in layer_output_dict.keys():
             if ('RNN' in k) or ('LSTM' in k) or ('GRU' in k):
-                # assert pad_length == len(layer_output_dict[k])
                 if unroll:
                     for i in range(pad_length):
                         unrolled_layer_output_dict['%s-%d' % (k, i)] = layer_output_dict[k][i]
@@ -254,18 +245,6 @@ class Estimator(object):
             )
         )
 
-        # self.CoVariance = (self.CoVariance.mul(1 - weight_CV) + var_temp
-        #               .mul(weight_CV)).detach() + additional_CV.detach()
-
-        # self.Ave = (self.Ave.mul(1 - weight_AV) + ave_CxA.mul(weight_AV)).detach()
-
-        # self.Amount += onehot.sum(0)
-
-        # new_CoVariance = (self.CoVariance.mul(1 - weight_CV) + var_temp
-        #               .mul(weight_CV)).detach() + additional_CV.detach()
-
-        # new_Ave = (self.Ave.mul(1 - weight_AV) + ave_CxA.mul(weight_AV)).detach()
-        
         new_CoVariance = (self.CoVariance.mul(1 - weight_CV) + var_temp
                       .mul(weight_CV)) + additional_CV
 

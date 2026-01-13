@@ -24,21 +24,21 @@ id2label = {0: "Safe", 1: "Unsafe"}
 def save_model(model, processor, save_dir=MODEL_DIR):
     model.save_pretrained(save_dir)
     processor.save_pretrained(save_dir)
-    print(f"✅ Model and processor saved to {save_dir}")
+    print(f"Model and processor saved to {save_dir}")
 
 def load_model(load_dir=MODEL_DIR):
     if os.path.exists(load_dir):
-        print(f"📦 Loading model from {load_dir}")
+        print(f"Loading model from {load_dir}")
         model = AutoModelForImageClassification.from_pretrained(load_dir)
         processor = AutoImageProcessor.from_pretrained(load_dir)
     else:
-        print(f"⚠️ {load_dir} not found, loading base model {MODEL_NAME}")
+        print(f"{load_dir} not found, loading base model {MODEL_NAME}")
         model = AutoModelForImageClassification.from_pretrained(
             MODEL_NAME,
             num_labels=NUM_CLASSES,
             id2label=id2label,
             label2id=label2id,
-            ignore_mismatched_sizes=True  # ✅ This fixes the shape error
+            ignore_mismatched_sizes=True
         )
         processor = AutoImageProcessor.from_pretrained(MODEL_NAME)
     return model, processor
@@ -82,7 +82,7 @@ def test(model, test_loader):
             correct += (preds == labels).sum().item()
             total += labels.size(0)
 
-    print(f"🧪 Test Accuracy: {correct / total:.4f}")
+    print(f"Test Accuracy: {correct / total:.4f}")
 
 
 # === Main Entrypoint ===

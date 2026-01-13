@@ -11,7 +11,7 @@ from model_wrappers.resnet_wrapper import ResNetWrapper
 # === Configuration ===
 MODEL_PATH = "resnet50_unsafebench.pth"
 BATCH_SIZE = 32
-NUM_EPOCHS = 10
+NUM_EPOCHS = 50
 LEARNING_RATE = 1e-4
 NUM_CLASSES = 2  # safe vs. unsafe
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -35,16 +35,16 @@ def get_dataloaders():
 # === Save Model ===
 def save_model(model):
     torch.save(model, MODEL_PATH)
-    print(f"✅ Model saved to {MODEL_PATH}")
+    print(f"Model saved to {MODEL_PATH}")
 
 
 # === Load Model from File ===
 def load_model():
     if os.path.exists(MODEL_PATH):
         model = torch.load(MODEL_PATH, map_location=DEVICE)
-        print(f"📦 Loaded model from {MODEL_PATH}")
+        print(f"Loaded model from {MODEL_PATH}")
     else:
-        print(f"⚠️ Model file not found at {MODEL_PATH}. Starting fresh.")
+        print(f"Model file not found at {MODEL_PATH}. Starting fresh.")
         model = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
         for param in model.parameters():
             param.requires_grad = False   # freeze backbone
@@ -92,7 +92,7 @@ def test(model, test_loader):
             correct += (outputs.argmax(1) == labels).sum().item()
             total += labels.size(0)
 
-    print(f"🧪 Test Accuracy: {correct/total:.4f}")
+    print(f"Test Accuracy: {correct/total:.4f}")
 
 
 # === Main Entrypoint ===

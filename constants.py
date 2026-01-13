@@ -1,1 +1,0 @@
-PAD_LENGTH = 32
