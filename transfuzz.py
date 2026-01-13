@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, choices=["resnet50", "robustresnet", "mobilevit",  "mitast", "wav2vec2kws"], required=True, help="Target model to fuzz")
     parser.add_argument("--model-path", type=str, default=None, help="Path to the model file (optional)")
     parser.add_argument("--seed-dataset", type=str, choices=["UnsafeBench", "ImageNet", "speech_commands"], required=True, help="Dataset to use for seeds")
-    parser.add_argument("--N", type=int, default=24, help="Number of seed inputs per perturbation")
+    parser.add_argument("--N", type=int, default=24, help="Number of seed inputs associated with a single perturbation")
     parser.add_argument("--coverage-metric", type=str, choices=["NLC"], default="NLC", help="Coverage metric to use (default: NLC)")
     parser.add_argument("--split", type=str, choices=["train", "val", "test"], default="test", help="Dataset split to use (default: test)")
     parser.add_argument("--seed-count", type=int, default=-1, help="Number of seed inputs to use (-1 for all, default: -1)")

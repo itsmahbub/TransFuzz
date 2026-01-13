@@ -1,8 +1,6 @@
 # TransFuzz
 
-## Overview
-
-## Environment Setup
+## Installation
 
 ```bash
 python -m venv transfuzz-env
@@ -11,7 +9,6 @@ pip install -r requirements.txt
 ```
 
 ## TransFuzz Interface
-### Arguments
 
 `transfuzz.py` exposes the following command-line arguments to control the fuzzing process:
 
@@ -25,17 +22,29 @@ pip install -r requirements.txt
 | `--target-label` | Enables targeted adversarial testing |
 | `--random-mutation` | Disables gradient-guided mutation |
 | `--time-budget` | Maximum fuzzing time in seconds |
-| `--N` | Number of seed inputs per perturbation |
+| `--N` | Number of seed inputs associated with a single perturbation |
 | `--seed` | Random seed for reproducibility |
 
 
-## Quick Start
-### 
+## Getting Started
 
+### Fuzz pretrained ResNet-50 image classification model
 
-## Reproducing Key Results
+```bash
+#  Download ImageNet seed inputs. This will store the seed inputs in `seeds` directory
+python download_imagenet.py
 
+# Run `TransFuzz`
+python transfuzz.py --model resnet50 --seed-dataset ImageNet  --split val --time-budget 300 --N 24
+```
 
+### Fuzz pretrained AST keyword spotting model with (target label = 24, "off")
+
+```bash
+python transfuzz.py --model mitast --seed-dataset speech_commands  --split test --time-budget 300 --N 24 --target-label 24
+```
+
+## Experiments
 
 README.md
 ├── Overview
