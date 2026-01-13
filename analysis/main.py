@@ -11,7 +11,7 @@ from noise_transfer import compute_noise_transfer
 from model_transfer import model_transfer_attack
 from model_wrappers.resnet_wrapper import ResNetWrapper
 from model_wrappers.mobile_vit_wrapper import MobileViTWrapper
-from fuzz import filter_incorrect
+from transfuzz import filter_incorrect
 from model_wrappers.distil_hubert_wrapper import DistilHuBERTWrapper
 from model_wrappers.mit_ast_wrapper import MITASTWrapper
 from model_wrappers.wav2vec2_kws_wrapper import Wav2Vec2KWSWrapper
