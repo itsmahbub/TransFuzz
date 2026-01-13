@@ -1,0 +1,46 @@
+--index-url https://download.pytorch.org/whl/cu121
+--extra-index-url https://pypi.org/simple
+torch==2.2.0
+torchvision==0.17.0
+pyflann-py3
+opencv-python==4.11.0.86
+tqdm==4.67.1
+scipy==1.15.1
+scikit-learn==1.6.1
+matplotlib==3.10.0
+numpy==1.26.4
+transformers==4.49.0
+torchaudio==2.2.0+cu121
+datasets==3.3.2
+soundfile==0.13.1
+
+# speechbrain==1.0.2
+# librosa==0.10.2.post1
+librosa==0.11.0
+kagglehub==0.3.13
+# git+https://github.com/openai/CLIP.git
+
+evaluate==0.4.5
+nltk==3.9.1
+sentence-transformers==5.1.0
+jiwer==4.0.0
+lpips==0.1.4
+scikit-image==0.25.2
+ImageHash==4.3.2
+git+https://github.com/fra31/auto-attack
+
+torchmetrics==1.8.2
+pystoi==0.4.1
+pesq==0.0.4
+
+# adversarial-robustness-toolbox==1.20.1
+# git+https://github.com/SeanNaren/deepspeech.pytorch
+# pytorch-lightning==2.5.5
+# omegaconf==2.3.0
+# python-Levenshtein==0.27.1
+# hydra-core==1.3.2
+
+
+google-api-python-client==2.183.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.2

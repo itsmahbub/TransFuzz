@@ -1,0 +1,8 @@
+{
+    "mitast-speech_commands": 7.514895915985107,
+    "wav2vec2kws-speech_commands": 9.5097074508667,
+    "resnet50-ImageNet": 23.420480728149414,
+    "mobilevit-ImageNet": 10.27550220489502,
+    "mobilevit-UnsafeBench": 51.122413635253906,
+    "resnet50-UnsafeBench": 35.689476013183594
+}
