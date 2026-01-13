@@ -13,13 +13,16 @@ transformers==4.49.0
 torchaudio==2.2.0+cu121
 datasets==3.3.2
 soundfile==0.13.1
-
 librosa==0.11.0
+
+robustbench==1.1.1
+git+https://github.com/fra31/auto-attack
+
 kagglehub==0.3.13
 
 lpips==0.1.4
 scikit-image==0.25.2
-
 torchmetrics==1.8.2
 pystoi==0.4.1
 pesq==0.0.4
+

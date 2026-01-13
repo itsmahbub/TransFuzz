@@ -4,6 +4,12 @@
 
 ## Environment Setup
 
+```bash
+python -m venv transfuzz-env
+source transfuzz-env/bin/activate
+pip install -r requirements.txt
+```
+
 ## Quick Start
 
 ## Reproducing Key Results
