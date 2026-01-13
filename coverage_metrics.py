@@ -5,8 +5,8 @@ Yuan et al., "Revisiting Neuron Coverage for DNN Testing: A Layer-Wise and Distr
 Original implementation:
 - Assumes direct invocation of models via model(inputs)
 Extensions in TransFuzz:
-- Makes the NLC computation differentiable and exposes its gradient with respect to the input, enabling gradient-guided mutation.
-- Generalizes the interface to accept an explicit prediction function, allowing NLC computation for models wrapped behind custom APIs
+- Preserves gradient flow through the NLC computation by removing gradient suppression.
+- Generalizes the interface to accept an explicit prediction function, allowing NLC computation for models wrapped behind custom APIs.
 """
 
 from tqdm import tqdm

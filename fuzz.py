@@ -9,12 +9,10 @@ import argparse
 from model_wrappers.mit_ast_wrapper import MITASTWrapper
 from model_wrappers.wav2vec2_kws_wrapper import Wav2Vec2KWSWrapper
 from model_wrappers.robust_resnet_wrapper import RobustResNetWrapper
-from collections import Counter
-from model_wrappers.utils import FilteredDataset, filter_incorrect
+from model_wrappers.utils import filter_incorrect
 import random
 import numpy as np
 import torch
-from torch.utils.data import Dataset
 import os
 
 
@@ -31,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, choices=["resnet50", "robustresnet", "mobilevit",  "mitast", "wav2vec2kws"], required=True, help="Model to fuzz")
     parser.add_argument("--model-path", type=str, default=None, help="Path to the model file (optional)")
     parser.add_argument("--dataset", type=str, choices=["UnsafeBench", "ImageNet", "speech_commands"], required=True, help="Dataset to use for seeds")
-    parser.add_argument("--batch-size", type=int, default=24, help="Number of samples per perturbation")
+    parser.add_argument("--N", type=int, default=24, help="Number of samples per perturbation")
     parser.add_argument("--coverage-metric", type=str, choices=["NLC"], default="NLC", help="Coverage metric to use (default: NLC)")
     parser.add_argument("--split", type=str, choices=["train", "val", "test"], default="test", help="Dataset split to use (default: test)")
     parser.add_argument("--seed-count", type=int, default=-1, help="Number of seed inputs to use (-1 for all, default: -1)")
@@ -41,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=0, help="Random seed for reproducibility (default: 0)")
     args = parser.parse_args()
 
-    ae_dir = f"adversarial-examples/{args.model}/{args.model_path}/{args.dataset}/{args.coverage_metric}/{args.target_label}/{args.batch_size}/{args.seed}"
+    ae_dir = f"adversarial-examples/{args.model}/{args.model_path}/{args.dataset}/{args.coverage_metric}/{args.target_label}/{args.N}/{args.seed}"
     if args.random_mutation:
         ae_dir += "-rand"
     # if path exists then exit
@@ -84,13 +82,13 @@ if __name__ == "__main__":
     layer_size_dict = tool.get_layer_output_sizes(model_wrapper.model, random_input,  inference_func=inference_func)
 
     seeds_dataset = model_wrapper.get_seeds(dataset_name=args.dataset, preprocessed=False, split=args.split, count=args.seed_count)
-    seeds_dataset = filter_incorrect(seeds_dataset, model_wrapper, batch_size=args.batch_size, preprocessed=False)
+    seeds_dataset = filter_incorrect(seeds_dataset, model_wrapper, batch_size=args.N, preprocessed=False)
 
     seeds_dataset_preprocessed = model_wrapper.get_seeds(dataset_name=args.dataset, preprocessed=True, split=args.split, count=args.seed_count)
-    seeds_dataset_preprocessed = filter_incorrect(seeds_dataset_preprocessed, model_wrapper, batch_size=args.batch_size, preprocessed=True)
+    seeds_dataset_preprocessed = filter_incorrect(seeds_dataset_preprocessed, model_wrapper, batch_size=args.N, preprocessed=True)
 
-    seeds_loader = DataLoader(seeds_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=model_wrapper.collate_fn)
-    seeds_loader_preprocessed = DataLoader(seeds_dataset_preprocessed, batch_size=args.batch_size, shuffle=True, collate_fn=model_wrapper.collate_fn)
+    seeds_loader = DataLoader(seeds_dataset, batch_size=args.N, shuffle=True, collate_fn=model_wrapper.collate_fn)
+    seeds_loader_preprocessed = DataLoader(seeds_dataset_preprocessed, batch_size=args.N, shuffle=True, collate_fn=model_wrapper.collate_fn)
 
     coverage_metric_class = getattr(coverage_metrics, args.coverage_metric)
     coverage_metric = coverage_metric_class(model_wrapper.model, layer_size_dict, device=model_wrapper.device, inference_func=inference_func, hyper=None)

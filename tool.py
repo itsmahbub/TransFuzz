@@ -3,12 +3,12 @@ NeuraL Coverage (NLC) instrumentation adapted from:
 Yuan et al., "Revisiting Neuron Coverage for DNN Testing: A Layer-Wise and Distribution-Aware Criterion", ICSE 2023.
 
 Original implementation:
-- Targets convolutional and recurrent architectures
-- Uses PyTorch forward hooks to collect activations
+- Targets convolutional and recurrent architectures.
+- Uses PyTorch forward hooks to collect activations.
 
 Extensions in TransFuzz:
-- Generalizes activation collection to transformer-based models (attention and feed-forward submodules)
-- Enables gradient propagation through coverage signals
+- Extend support to transformer-based models (attention and feed-forward submodules) for layer activation collection.
+- Enables gradient propagation through coverage signals.
 """
 
 import os
