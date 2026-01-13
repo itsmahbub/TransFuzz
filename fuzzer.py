@@ -32,14 +32,11 @@ class Fuzzer:
         self.target_label = target_label
         self.random_mutation = random_mutation
         self.noise_range = noise_range
-        # self.exploit_count = exploit_count
-        # self.exploration_enabled = False
 
         self.delta_time = 0
         self.coverage_gains = [coverage.current.item() if isinstance(coverage.current, torch.Tensor) else coverage.current]
         self.delta_times = [0]
         self.overall_ae_counts = [0]
-        # self.targeted_ae_counts = [0]
 
         low, high = self.noise_range
         self.noises = [
@@ -49,11 +46,6 @@ class Fuzzer:
 
         self.ae_map = torch.zeros((len(self.seeds_loader), self.seeds_loader.batch_size), dtype=torch.long)
 
-
-        
-        # self.lrs = np.arange(0.1, 10.1, 0.2)
-
-        # self.lr_scores = [1]*len(self.lrs)
         self.noise_scores = [1]*len(self.noises)
         self.losses = [None]*len(self.noises)
 
@@ -65,66 +57,7 @@ class Fuzzer:
 
     def exit(self, sig, frame):
         print('You pressed Ctrl+C!')
-        try:
-            self.plot_coverage()
-        except:
-            pass
         sys.exit(0)
-
-    def plot_coverage(self, load_from_file=False):
-        os.makedirs(f"{self.ae_dir}", exist_ok=True)
-        if load_from_file:
-            with open(f"{self.ae_dir}/coverage.json", "r") as f:
-                cov_info = json.load(f)
-                delta_times = cov_info["time"]
-                coverage_gains = cov_info["coverage"]
-                overall_ae_counts =  cov_info["overall_ae_counts"]
-                # untargeted_ae_counts =  cov_info["untargeted_ae_counts"]
-        else:
-            delta_times = self.delta_times
-            coverage_gains = self.coverage_gains
-            overall_ae_counts = self.overall_ae_counts
-            # targeted_ae_counts = self.targeted_ae_counts
-
-    
-        x_values = delta_times
-        x_values = list(range(len(delta_times)))
-        # 
-        overall_ae_counts_non_cumulative = [0]
-        for i in range(1, len(overall_ae_counts)):
-            overall_ae_counts_non_cumulative.append(overall_ae_counts[i]-overall_ae_counts[i-1])
-
-        fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, figsize=(10, 5))
-
-        ax1.plot(x_values, coverage_gains, color='blue', label='Coverage (NLC)')
-        ax1.set_ylabel('Coverage')
-        ax1.set_title(f'Coverage over time')
-        ax1.legend(loc='upper left')
-
-        ax2.plot(x_values, overall_ae_counts, color='orange', label='Untargeted AE count')
-
-        ax2.yaxis.tick_right()
-        ax2.yaxis.set_label_position("right")
-        ax2.set_ylabel('AE Count')
-        ax2.set_title('Adversarial Examples over time')
-        ax2.legend(loc='upper left')
-
-        fig.supxlabel(f'Iterations')
-        plt.savefig(f"{self.ae_dir}/fuzz_coverage.png")
-
-        # with open(f"{self.ae_dir}/ae_map.json", "w") as f:
-
-        flat_map = self.ae_map.view(-1)[:len(self.seeds_loader.dataset)]
-        seeds_with_any = (flat_map > 0).sum().item()
-        total_seeds = len(self.seeds_loader.dataset)
-        success_rate = seeds_with_any / total_seeds
-        with open(f"{self.ae_dir}/coverage.json", "w") as f:
-            json.dump({
-                "time": delta_times,
-                "coverage": coverage_gains,
-                "overall_ae_counts": overall_ae_counts,
-                "SAR": success_rate
-            }, f, indent=4)
 
     def can_terminate(self):
         if self.epochs != -1 and self.epoch > self.epochs:
@@ -139,7 +72,7 @@ class Fuzzer:
         cov_dict = self.coverage.calculate(preprocessed_inputs)
         gain = self.coverage.gain(cov_dict)
         if gain is not None:
-            _, gain_amt = self.CoverageGain(gain)
+            _, gain_amt = self.calculate_coverage_gain(gain)
             self.coverage.update(cov_dict, gain)
         else:
             gain_amt = torch.tensor(0.0001, requires_grad=True)
@@ -147,12 +80,8 @@ class Fuzzer:
 
 
     def mutate(self, noise, inputs, ground_labels):
-        # print(noise.shape)
-       
-
         noise = noise.clone().detach().requires_grad_(True)
 
-        # forward
         preprocessed_inputs = self.model_wrapper.preprocess(inputs + noise)
         gain = self.compute_coverage_gain(preprocessed_inputs)
         prediction_loss = self.model_wrapper.compute_loss(
@@ -194,9 +123,7 @@ class Fuzzer:
         return noise.clone().detach(), loss.item()
 
 
-
-    
-    def CoverageGain(self, gain):
+    def calculate_coverage_gain(self, gain):
         """Returns if there was coverage gain or not and the gain amount"""
         if gain is not None:
             if isinstance(gain, tuple):
@@ -207,14 +134,12 @@ class Fuzzer:
             return False, torch.tensor(0.0)
 
     def is_adversarial(self, mutated_noise, seed_idx):
-        # mutated_noise = self.model_wrapper.clamp_noise(mutated_noise, inputs)
         inputs, ground_truths, *_ = self.seeds[seed_idx]
         original_predictions = self.model_wrapper.predict_outputs(self.model_wrapper.preprocess(inputs))
         mutated_inputs = inputs + mutated_noise
         noisy_inputs = self.model_wrapper.clamp(mutated_inputs)
 
         total = 0
-        # targeted_adversarial = 0
         miss_classification = 0
 
         adversarial_inputs = []
@@ -256,8 +181,7 @@ class Fuzzer:
             self.model_wrapper.save_adversarial_example(f"{self.epoch}_{i}", orig, ae, ae_label, original_prediction, ground_truth, self.target_label, self.ae_dir)
             i += 1
 
-  
-    def SelectNext(self):
+    def select_next(self):
         if random.random() < 0.05:
             noise_index = random.randint(0, len(self.noises) - 1)
         else:
@@ -273,31 +197,14 @@ class Fuzzer:
         overall_ae_count = 0
         start_time = time.time()
 
-        # explore=self.exploration_enabled
-        # exploit_count=0
-        prev_loss = None
         mean_ae = 0
         mean_loss = 0
         while not self.can_terminate():
-            
-            # if explore:
-            #     print("Exploration")
-            #     noise, seed_idx = self.SelectNext() 
-            #     inputs, ground_labels, *_ = self.seeds[seed_idx]
-            #     mutated_noise, loss = self.mutate(noise,inputs, ground_labels, use_sign=True)
-                
-            # elif exploit_count>0 or not self.exploration_enabled:
-            #     print("Exploitation")
-            #     if not self.exploration_enabled:
-            noise, seed_idx = self.SelectNext() 
+
+            noise, seed_idx = self.select_next() 
             inputs, ground_labels, *_ = self.seeds[seed_idx]
             mutated_noise, loss = self.mutate(noise,inputs, ground_labels)
-                # exploit_count-=1
-            # else:
-            #     explore=True
-            #     continue
-        
-            
+
             self.noises[seed_idx] = mutated_noise
 
             
@@ -305,24 +212,10 @@ class Fuzzer:
             self.coverage_gains.append(self.coverage.current.item() if isinstance(self.coverage.current, torch.Tensor) else self.coverage.current)
             ae_count = 0
             if is_adversarial:
-                # if explore:
-                #     explore=False
-                #     exploit_count=self.exploit_count
-                # if self.coverage_guided:
-                    # self.noise_scores[seed_idx] += (self.coverage_gains[-1] - self.coverage_gains[-2])/sum(self.noise_scores)
-                    # self.lr_scores[lr_idx] += (self.coverage_gains[-1] - self.coverage_gains[-2])/sum(self.lr_scores)
-
-                # targeted_ae_count += targeted_adversarial_count
+    
                 ae_count = len(adversarial_inputs)
                 overall_ae_count += ae_count
-                # untargeted_ae_count += (overall_ae_count-targeted_adversarial_count)
 
-                # if self.target_label is not None:
-                #     self.noise_scores[seed_idx] += (targeted_ae_count/(targeted_ae_count+untargeted_ae_count+1))/sum(self.noise_scores)
-                #     # self.lr_scores[lr_idx] += (targeted_ae_count/(targeted_ae_count+untargeted_ae_count+1))/sum(self.lr_scores)
-                # else:
-                # self.noise_scores[seed_idx] += (ae_count/(overall_ae_count+1))/sum(self.noise_scores)
-                    # self.lr_scores[lr_idx] += (overall_ae_count/(targeted_ae_count+untargeted_ae_count+1))/sum(self.lr_scores)
                 self.save_adversarial_examples(adversarial_inputs)
 
 
@@ -357,7 +250,6 @@ class Fuzzer:
             cap = 2.0 * mean_score
             self.noise_scores[seed_idx] = min(self.noise_scores[seed_idx], cap)
             self.losses[seed_idx] = loss
-            # print(self.noise_scores)
       
 
             self.epoch += 1
@@ -370,8 +262,6 @@ class Fuzzer:
 
             self.delta_times.append(self.delta_time)
             self.overall_ae_counts.append(overall_ae_count)
-
-        self.plot_coverage()
 
         print(f"Coverage: {self.coverage.current}")
         print(f"# AE: {overall_ae_count}")
