@@ -1,31 +1,25 @@
 #!/bin/bash
 
-# run_all_experiments.sh
-# Runs fuzz.py for multiple seeds & batch sizes, then runs analysis/main.py for each run.
-# Usage: ./run_all_experiments.sh
-
-PY=python            # or `python3` if required
-OUTDIR="results"     # directory to store any outputs (optional)
+PY=python            
 LOGDIR="logs"        # directory for logs
 
-# fuzz parameters (change if you want different defaults)
-ATTACKED_MODEL="resnet50"
-ATTACKED_MODEL_PATH="resnet50_unsafebench.pth"
-MODEL="mobilevit"
-MODEL_PATH="mobilevit_unsafebench"  # default from your parser
+ATTACKED_MODEL="resnet50" # mobilevit
+ATTACKED_MODEL_PATH="resnet50_unsafebench.pth" # mobilevit_unsafebench
+MODEL="mobilevit" # resnet50
+MODEL_PATH="mobilevit_unsafebench"  # resnet50_unsafebench.pth
 DATASET="UnsafeBench"
 SPLIT="test"
 SEED_COUNT=1000
-TIME_BUDGET=600
-TARGET_LABELS=(0)
+TIME_BUDGET=300
+TARGET_LABELS=(0) # 1
 NUM_CLASSES=2
 CLEAN_SEED_COUNT=790 # 722 resnet, 790 mobilevit
 
 # experiment grid
-SEEDS=(0)
-BATCHES=(24)
+SEEDS=(0 1 2)
+BATCHES=(1 24) # (N values)
+NO_GRAD="" #" --random-mutation"
 
-mkdir -p "$OUTDIR"
 mkdir -p "$LOGDIR"
 
 for seed in "${SEEDS[@]}"; do
@@ -39,25 +33,24 @@ for seed in "${SEEDS[@]}"; do
       ANALYSIS_LOG="${LOGDIR}/analysis_seed${seed}_batch${batch}.log"
 
       # Run fuzzing
-      echo "[$(date +'%F %T')] Starting fuzz.py (seed=${seed}, batch=${batch})" | tee -a "$FUZZ_LOG"
-      $PY fuzz.py \
+      echo "[$(date +'%F %T')] Starting transfuzz.py (seed=${seed}, batch=${batch})" | tee -a "$FUZZ_LOG"
+      $PY transfuzz.py \
         --model "$MODEL" \
         --model-path "$MODEL_PATH" \
-        --dataset "$DATASET" \
+        --seed-dataset "$DATASET" \
         --split "$SPLIT" \
         --time-budget "$TIME_BUDGET" \
         --seed "$seed" \
-        --batch-size "$batch" \
+        --N "$batch" \
         --seed-count "$SEED_COUNT" \
-        --target-label "$target" \
-        --random-mutation \
+        --target-label "$target" "$NO_GRAD" \
         2>&1 | tee -a "$FUZZ_LOG"
       FUZZ_EXIT=$?
-      echo "[$(date +'%F %T')] Finished fuzz.py (exit=${FUZZ_EXIT})" | tee -a "$FUZZ_LOG"
+      echo "[$(date +'%F %T')] Finished transfuzz.py (exit=${FUZZ_EXIT})" | tee -a "$FUZZ_LOG"
 
       # Optionally: check fuzz exit and decide whether to continue to analysis
       if [ $FUZZ_EXIT -ne 0 ]; then
-        echo "WARNING: fuzz.py returned non-zero exit (${FUZZ_EXIT}) for seed=${seed},batch=${batch}. Continuing to analysis step." | tee -a "$FUZZ_LOG"
+        echo "WARNING: transfuzz.py returned non-zero exit (${FUZZ_EXIT}) for seed=${seed},batch=${batch}. Continuing to analysis step." | tee -a "$FUZZ_LOG"
       fi
 
       # Run analysis (use same parameters so analysis can map to fuzz run)
@@ -74,8 +67,7 @@ for seed in "${SEEDS[@]}"; do
         --time-budget "$TIME_BUDGET" \
         --num-classes "$NUM_CLASSES" \
         --target-label "$target" \
-        --seed "$seed" \
-        --random-mutation \
+        --seed "$seed" "$NO_GRAD" \
 
         2>&1 | tee -a "$ANALYSIS_LOG"
       ANALYSIS_EXIT=$?
@@ -92,9 +84,3 @@ for seed in "${SEEDS[@]}"; do
 done
 
 echo "ALL DONE. Summary in ${LOGDIR}/run_summary.log"
-
-
-# analysis
-#   --attacked-model-path "$ATTACKED_MODEL_PATH" \
-#       --model-path "$MODEL_PATH" \
-#       --target-label "$TARGET_LABEL" \

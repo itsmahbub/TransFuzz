@@ -114,9 +114,11 @@ python transfuzz.py --model mitast --seed-dataset speech_commands  --split test 
 
 We provide scripts to reproduce all experiments reported in the paper.
 
-### RQ1: Adversarial Fault Discovery and Coverage
 ```bash
-bash scripts/run_rq1.sh
+bash run_exp-imagenet.sh
+bash run_exp-unsafebench.sh
+bash run_exp_kws-untargeted.sh
+bash run_exp_kws-targeted.sh
 ```
 
 ## Precomputed Experiment Results

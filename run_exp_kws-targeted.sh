@@ -1,14 +1,8 @@
 #!/bin/bash
 
-# run_all_experiments.sh
-# Runs fuzz.py for multiple seeds & batch sizes, then runs analysis/main.py for each run.
-# Usage: ./run_all_experiments.sh
-
-PY=python            # or `python3` if required
-OUTDIR="results"     # directory to store any outputs (optional)
+PY=python            
 LOGDIR="logs"        # directory for logs
 
-# fuzz parameters (change if you want different defaults)
 MODEL="mitast"
 ATTACKED_MODEL="wav2vec2kws"
 DATASET="speech_commands"
@@ -21,10 +15,10 @@ CLEAN_SEED_COUNT=952
 
 # experiment grid
 SEEDS=(0 1 2)
-BATCHES=(24)
+BATCHES=(1 24)
 TARGET_LABELS=(5 24)
+NO_GRAD= "" # " --random-mutation"
 
-mkdir -p "$OUTDIR"
 mkdir -p "$LOGDIR"
 
 for seed in "${SEEDS[@]}"; do
@@ -41,24 +35,22 @@ for seed in "${SEEDS[@]}"; do
       echo "[$(date +'%F %T')] Starting fuzz.py (seed=${seed}, batch=${batch})" | tee -a "$FUZZ_LOG"
       $PY fuzz.py \
         --model "$MODEL" \
-        --dataset "$DATASET" \
+        --seed-dataset "$DATASET" \
         --split "$SPLIT" \
         --time-budget "$TIME_BUDGET" \
         --seed "$seed" \
         --batch-size "$batch" \
         --target-label "$TARGET_LABEL" \
-        --seed-count "$SEED_COUNT" \
-        --random-mutation \
+        --seed-count "$SEED_COUNT" "$NO_GRAD" \
         2>&1 | tee -a "$FUZZ_LOG"
       FUZZ_EXIT=$?
       echo "[$(date +'%F %T')] Finished fuzz.py (exit=${FUZZ_EXIT})" | tee -a "$FUZZ_LOG"
 
-      # Optionally: check fuzz exit and decide whether to continue to analysis
       if [ $FUZZ_EXIT -ne 0 ]; then
         echo "WARNING: fuzz.py returned non-zero exit (${FUZZ_EXIT}) for seed=${seed},batch=${batch}. Continuing to analysis step." | tee -a "$FUZZ_LOG"
       fi
 
-      # Run analysis (use same parameters so analysis can map to fuzz run)
+      # Run analysis
       echo "[$(date +'%F %T')] Starting analysis/main.py (seed=${seed}, batch=${batch})" | tee -a "$ANALYSIS_LOG"
       $PY analysis/main.py \
         --seed-count "$SEED_COUNT" \
@@ -80,15 +72,10 @@ for seed in "${SEEDS[@]}"; do
       echo "$(date +'%F %T') SUMMARY seed=${seed} batch=${batch} fuzz_exit=${FUZZ_EXIT} analysis_exit=${ANALYSIS_EXIT}" >> "${LOGDIR}/run_summary.log"
 
       echo "------------------------------------------------------"
-      # small sleep to give system a short breather (optional)
+      # small sleep to give system a short breather
       sleep 1
     done
   done
 done
 
 echo "ALL DONE. Summary in ${LOGDIR}/run_summary.log"
-
-
-# analysis
-#   --attacked-model-path "$ATTACKED_MODEL_PATH" \
-#       --model-path "$MODEL_PATH" \
