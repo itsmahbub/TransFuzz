@@ -7,26 +7,21 @@ from torch.utils.data import ConcatDataset
 from diversity import calculate_diversity
 from calculate_coverage import calculate_coverage
 from calculate_stability import calculate_stability
-from noise_transfer import compute_noise_transfer
 from model_transfer import model_transfer_attack
 from model_wrappers.resnet_wrapper import ResNetWrapper
 from model_wrappers.mobile_vit_wrapper import MobileViTWrapper
 from transfuzz import filter_incorrect
-from model_wrappers.distil_hubert_wrapper import DistilHuBERTWrapper
 from model_wrappers.mit_ast_wrapper import MITASTWrapper
 from model_wrappers.wav2vec2_kws_wrapper import Wav2Vec2KWSWrapper
 from calculate_stability import calculate_adv_class_dist
 import math
 import argparse
 from model_wrappers.robust_resnet_wrapper import RobustResNetWrapper
-from compute_shared_perturbation_effect import compute_shared_perturbtion_effect
 
-should_calculate_noise_transfer = False
 should_calculate_model_transfer = False
 should_calculate_diversity = False
 should_calculate_naturalness = True
 should_calculate_stability = False
-should_calculate_shared_perturbation = True
 should_calculate_coverage = True
 
 def main():
@@ -97,9 +92,7 @@ def main():
         "seed_count": seed_count,
         "clean_seed": clean_seed_count,
         "time_budget": 300,
-        "loss_function": "ce",
-        "mutation": "gradient",
-        "batch_size": batch_size,
+        "N": batch_size,
         "dataset": dataset_name,
         "target_label": target_label,
         "number_of_classes": num_classes
@@ -114,8 +107,6 @@ def main():
     if should_calculate_stability and "stability" not in existing_results:
         all_done = False
     if should_calculate_model_transfer and f"model_transfer-{attacked_model_name}" not in existing_results:
-        all_done = False
-    if should_calculate_noise_transfer and "noise_transfer" not in existing_results:
         all_done = False
     if "adversarial_classes" not in existing_results:
         all_done = False
@@ -205,8 +196,6 @@ def main():
 
     if should_calculate_naturalness and "naturalness" not in existing_results:
         
-
-       
         if model_name in ["mitast", "wav2vec2kws"]:
             from audio_naturalness_v1 import calculate_audio_naturalness
             naturualness_results = calculate_audio_naturalness(orig_root, aes_root)
@@ -229,20 +218,6 @@ def main():
             existing_results[f"model_transfer-{attacked_model_name}"] = model_transfer_results
         except Exception as e:
             print("Model transfer calculation failed:", e)
-    if should_calculate_noise_transfer and "noise_transfer" not in existing_results:
-        try:
-            noise_transfer_results = compute_noise_transfer(model_wrapper, poison_dir, new_dataset)
-            existing_results["noise_transfer"] = noise_transfer_results
-        except Exception as e:
-            print("Noise transfer calculation failed:", e)
-
-    if should_calculate_shared_perturbation and "shared_perturbation" not in existing_results:
-        try:
-            shared_perturbation_results = compute_shared_perturbtion_effect(model_wrapper, poison_dir, seed_dataset_unprocessed)
-            existing_results["shared_perturbation"] = shared_perturbation_results
-        except Exception as e:
-            print("Shared perturbation calculation failed:", e)
-            raise e
 
     if "adversarial_classes" not in existing_results:
         adv_class_dist = calculate_adv_class_dist(model_wrapper=model_wrapper, dataset=adv_dataset)

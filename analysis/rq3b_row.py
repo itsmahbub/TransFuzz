@@ -11,14 +11,10 @@ TARGET_LABELS = {
 }
 
 # AST
-# yes: 28
-# no: 22
 # on: 5
 # off: 24
 
 # Wav2Vec2
-# yes: 33
-# no: 18
 # on: 20
 # off: 19
 

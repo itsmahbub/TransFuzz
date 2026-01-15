@@ -69,7 +69,7 @@ The experiments were conducted using Python 3.10 with PyTorch installed with CUD
 TransFuzz requires Python 3 and a CUDA-enabled GPU environment. The provided `requirements.txt` installs PyTorch with CUDA support. The experiments were conducted using Python 3.10 with PyTorch installed with CUDA support (with CUDA 12.1).
 
 ```bash
-python -m venv transfuzz-env
+python3 -m venv transfuzz-env
 source transfuzz-env/bin/activate
 pip install -r requirements.txt
 ```
@@ -121,14 +121,40 @@ bash scripts/run_rq1.sh
 
 ## Precomputed Experiment Results
 
-The `results/` directory contains precomputed outputs for all fuzzing configurations reported in the paper, including:
+Each entry in `results.json` corresponds to a single fuzzing configuration. The key encodes the experimental setup (model, target label, dataset, mutation strategy, number of samples associated with a perturbation (N), and random seed). Format of the key is ` f"{model_name}-{model_path}-{dataset_name}-{target_label}-{N}-{random_seed}{rand}"`. For example:
 
-- Fault discovery counts
-- Coverage metrics
-- Perceptual similarity scores
-- Fault stability measurements
+- `resnet50-None-ImageNet-None-24-0` denotes fuzzing ResNet-50 on ImageNet with untargeted testing, N= 24, and random seed 0.
 
-These results can be directly used with the analysis scripts to regenerate all tables and figures without re-running fuzzing.
+Each entry contains the following fields:
+
+- **Configuration Metadata**  
+  - `seed_count`: number of seed inputs used  
+  - `clean_seed`: number of correctly classified seed inputs  
+  - `time_budget`: fuzzing time budget (seconds)  
+  - `N`: number of inputs associated with a single perturbation  
+  - `dataset`: seed dataset  
+  - `target_label`: target class for targeted testing (null for untargeted)  
+  - `number_of_classes`: number of output classes  
+
+- **Diversity** (`diversity`)  
+  - `count`: number of fault-inducing inputs generated  
+  - `class_covered`:  mumber of distinct output classes reached by discovered faults 
+  - `scaled_entropy`: normalized Shannon entropy of the adversarial label distribution
+
+- **Perceptual Naturalness Metrics** (`naturalness`)  
+  Includes mean LPIPS, SSIM for image inputs and PESQ, STOI for audio inputs over generated fault-inducing inputs.
+
+- **Cross-Model Transferability** (`model_transfer-*`)  
+  Transfer success statistics when adversarial inputs generated on one model are evaluated on another model.
+
+- **Coverage Improvement** (`coverage`)  
+  Coverage achieved by the union of seed inputs and adversarial inputs (`new`) and only adversarial inputs (`adv`).
+
+- **Fault Stability Metrics** (`stability`)  
+  Statistics measuring whether adversarial behaviors persist under standard I/O operations.
+
+The analysis scripts aggregate these entries across configurations to generate all tables and figures reported in the paper.
+
 
 ## Reproducing Tables and Figures
 
