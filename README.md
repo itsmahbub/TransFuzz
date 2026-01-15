@@ -112,7 +112,9 @@ python transfuzz.py --model mitast --seed-dataset speech_commands  --split test 
 
 ## Reproducing Paper Experiments
 
-We provide scripts to reproduce all experiments reported in the paper.
+Running these scripts reproduces the corresponding experimental configurations reported in the paper.
+Within each script, the fuzzing configurations (e.g., fuzzing budget, target model, seed dataset, N, target label, and whether gradient-guided mutation is enabled) are specified explicitly as configuration variables at the top of the file.
+Each script first runs `transfuzz.py` for the specified fuzzing time budget and then invokes `analysis/main.py` to compute the evaluation metrics, including coverage, fault discovery, perceptual naturalness, fault stability, and cross-model transferability.
 
 ```bash
 bash run_exp-imagenet.sh
@@ -165,6 +167,7 @@ Scripts in `analysis/` aggregate experimental outputs and generate the tables an
 ### Table Rows
 
 Each script corresponds to a specific table in the paper.  
+
 Within each script, the fuzzing configurations to be aggregated (e.g., model, seed dataset, N, and target label, mutation gradient direction enabled/disabled) are specified explicitly as configuration variables at the top of the file.
 
 
