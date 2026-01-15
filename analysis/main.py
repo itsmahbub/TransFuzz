@@ -81,12 +81,12 @@ def main():
     new_dataset_split = "train"
     seed_dataset_split = "val"
 
-    with open("analysis/results-ablation.json", "r") as f:
+    with open("results.json", "r") as f:
         try:
             results = json.load(f)
         except:
             results = {}
-    with open("analysis/initial_coverage.json", "r") as f:
+    with open("initial_coverage.json", "r") as f:
         try:
             initial_coverages = json.load(f)
         except:
@@ -248,15 +248,14 @@ def main():
         adv_class_dist = calculate_adv_class_dist(model_wrapper=model_wrapper, dataset=adv_dataset)
         existing_results["adversarial_classes"] = adv_class_dist["aversarial_classes"]
     results[result_key] = existing_results
-    with open("analysis/results-ablation.json", "w") as f:
+    with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
-    with open("analysis/initial_coverage.json", "w") as f:
+    with open("initial_coverage.json", "w") as f:
         json.dump(initial_coverages, f, indent=4)
 
 if __name__ == "__main__":
     main()
 
-# Yuan
 # python analysis/main.py --seed-count 3923 --clean-seed-count 3121 --batch-size 24 --model-name mobilevit --dataset-name ImageNet --attacked-model-name mobilevit --time-budget 300 --num-classes 1000 --seed 0
 # python analysis/main.py --seed-count 3923 --clean-seed-count 2483 --batch-size 32 --model-name robustresnet --dataset-name ImageNet --attacked-model-name  resnet50 --time-budget 300 --num-classes 1000 --seed 0
 

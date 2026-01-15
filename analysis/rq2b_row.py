@@ -52,7 +52,7 @@ def generate_coverage_rows(json_path, batch_size, random_mutation=False):
     return new_row
 
 if __name__ == "__main__":
-    json_path = "analysis/results-ablation.json"   # path to your JSON file
+    json_path = "results.json"   # path to your JSON file
     batch_size = 24              # set batch size here 
 
     new_row = generate_coverage_rows(
