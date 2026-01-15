@@ -18,7 +18,7 @@ to_pil = transforms.ToPILImage()
 
 
 class Fuzzer:
-    def __init__(self, seeds_loader: DataLoader, model_wrapper: ModelWrapper, coverage: Coverage, target_label=None, epochs=10000, timeout=6*60*60, ae_dir="adversarial-examples/default", coverage_guided=True, random_mutation=False, noise_range=(-8, 8)):
+    def __init__(self, seeds_loader: DataLoader, model_wrapper: ModelWrapper, coverage: Coverage, target_label=None, epochs=10000, timeout=6*60*60, ae_dir="outputs/default", coverage_guided=True, random_mutation=False, noise_range=(-8, 8)):
         
         self.model_wrapper = model_wrapper
         self.coverage = coverage

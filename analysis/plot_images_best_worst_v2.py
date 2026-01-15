@@ -15,8 +15,8 @@ from matplotlib.gridspec import GridSpec
 K = 3                        # number of examples per panel
 IMG_SIZE = (224, 224)
 
-TF_ROOT = "adversarial-examples/resnet50/None/ImageNet/NLC/None/24/0"
-YUAN_ROOT = "adversarial-examples/yuan/ImageNet-resnet50-NLC-0/image"
+TF_ROOT = "outputs/resnet50/None/ImageNet/NLC/None/24/0"
+YUAN_ROOT = "outputs/yuan/ImageNet-resnet50-NLC-0/image"
 
 OUT_DIR = "analysis"
 OUT_NAME = "naturalness-qualitative"

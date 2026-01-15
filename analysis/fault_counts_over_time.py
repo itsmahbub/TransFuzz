@@ -11,24 +11,24 @@ os.makedirs(outdir, exist_ok=True)
 # -------------------------------------------------
 FUZZERS = {
     "TF (N=1)": [
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/1/0/coverage.json",
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/1/1/coverage.json",
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/1/2/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/1/0/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/1/1/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/1/2/coverage.json",
     ],
     "TF-NoGrad (N=24)": [
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/24/0-rand/coverage.json",
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/24/1-rand/coverage.json",
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/24/2-rand/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/24/0-rand/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/24/1-rand/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/24/2-rand/coverage.json",
     ],
     "TF (N=24)": [
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/24/0/coverage.json",
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/24/1/coverage.json",
-        "adversarial-examples/resnet50/None/ImageNet/NLC/None/24/2/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/24/0/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/24/1/coverage.json",
+        "outputs/resnet50/None/ImageNet/NLC/None/24/2/coverage.json",
     ],
     "Yuan et al.": [
-        "adversarial-examples/yuan/ImageNet-resnet50-NLC-0/image/coverage.json",
-        "adversarial-examples/yuan/ImageNet-resnet50-NLC-1/image/coverage.json",
-        "adversarial-examples/yuan/ImageNet-resnet50-NLC-2/image/coverage.json",
+        "outputs/yuan/ImageNet-resnet50-NLC-0/image/coverage.json",
+        "outputs/yuan/ImageNet-resnet50-NLC-1/image/coverage.json",
+        "outputs/yuan/ImageNet-resnet50-NLC-2/image/coverage.json",
     ],
 }
 

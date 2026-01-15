@@ -64,13 +64,13 @@ def main():
     result_key = f"{model_name}-{model_path}-{dataset_name}-{target_label}-{batch_size}-{seed}{rand}"
     # result_key = f"yuan-{model_name}-{model_path}-{dataset_name}-{target_label}-{batch_size}-{seed}"
 
-    orig_root = f"adversarial-examples/{model_name}/{model_path}/{dataset_name}/NLC/{target_label}/{batch_size}/{seed}{rand}/orig"
-    aes_root  = f"adversarial-examples/{model_name}/{model_path}/{dataset_name}/NLC/{target_label}/{batch_size}/{seed}{rand}/aes"
-    poison_dir = f"adversarial-examples/{model_name}/{model_path}/{dataset_name}/NLC/{target_label}/{batch_size}/{seed}{rand}/poisons"
+    orig_root = f"outputs/{model_name}/{model_path}/{dataset_name}/NLC/{target_label}/{batch_size}/{seed}{rand}/orig"
+    aes_root  = f"outputs/{model_name}/{model_path}/{dataset_name}/NLC/{target_label}/{batch_size}/{seed}{rand}/aes"
+    poison_dir = f"outputs/{model_name}/{model_path}/{dataset_name}/NLC/{target_label}/{batch_size}/{seed}{rand}/poisons"
 
 
-    # orig_root = f"adversarial-examples/yuan/{dataset_name}-{model_name}-NLC-{seed}/image/orig"
-    # aes_root = f"adversarial-examples/yuan/{dataset_name}-{model_name}-NLC-{seed}/image/aes"
+    # orig_root = f"outputs/yuan/{dataset_name}-{model_name}-NLC-{seed}/image/orig"
+    # aes_root = f"outputs/yuan/{dataset_name}-{model_name}-NLC-{seed}/image/aes"
     # poison_dir = ""
 
     new_dataset_split = "train"

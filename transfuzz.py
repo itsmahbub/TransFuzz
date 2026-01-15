@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=0, help="Random seed for reproducibility (default: 0)")
     args = parser.parse_args()
 
-    ae_dir = f"adversarial-examples/{args.model}/{args.model_path}/{args.seed_dataset}/{args.coverage_metric}/{args.target_label}/{args.N}/{args.seed}"
+    ae_dir = f"outputs/{args.model}/{args.model_path}/{args.seed_dataset}/{args.coverage_metric}/{args.target_label}/{args.N}/{args.seed}"
     if args.random_mutation:
         ae_dir += "-rand"
     # if path exists then exit

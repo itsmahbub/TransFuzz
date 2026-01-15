@@ -121,9 +121,9 @@ def calculate_audio_naturalness(orig_root, aes_root):
     return summary
 
 if __name__ == "__main__":
-    orig_root = "adversarial-examples/distilhubert/speech_commands/NLC/None/32/orig"
-    aes_root = "adversarial-examples/distilhubert/speech_commands/NLC/None/32/aes"
-    out_csv = "adversarial-examples/distilhubert/speech_commands/NLC/None/32/audio_naturalness_per_sample.csv"
+    orig_root = "outputs/distilhubert/speech_commands/NLC/None/32/orig"
+    aes_root = "outputs/distilhubert/speech_commands/NLC/None/32/aes"
+    out_csv = "outputs/distilhubert/speech_commands/NLC/None/32/audio_naturalness_per_sample.csv"
 
     results = calculate_audio_naturalness(orig_root, aes_root)
     print("Audio Naturalness Results:", results)

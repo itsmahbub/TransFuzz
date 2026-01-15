@@ -23,6 +23,8 @@ model_mapping = {
 MODEL_PATH = None
 TARGET_LABEL = None
 SEEDS = [0, 1, 2]
+N = 24
+NoGrad = False # True if mutation is not gradient-guided
 
 def generate_coverage_rows(json_path, batch_size, random_mutation=False):
     with open(json_path, "r") as f:
@@ -62,10 +64,10 @@ def generate_coverage_rows(json_path, batch_size, random_mutation=False):
 
 if __name__ == "__main__":
     json_path = "results.json"   # path to your JSON file
-    batch_size = 24              # set batch size here 
+    batch_size = N              # set batch size here 
 
     generate_coverage_rows(
         json_path=json_path,
         batch_size=batch_size,
-        random_mutation=False
+        random_mutation=NoGrad
     )

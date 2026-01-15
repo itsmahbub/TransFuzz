@@ -12,7 +12,7 @@
             // "args": ["--model", "mitast", "--dataset", "speech_commands", "--batch", "32", "--split", "test", "--time-budget", "300", "--seed-count", "1000"],
             // "args": ["--model", "wav2vec2asr",  "--dataset", "LibriSpeech", "--batch", "8", "--split", "test-clean", "--time-budget", "300", "--seed-count", "100"],
             // "args": ["--model", "resnet50",  "--dataset", "ImageNet", "--split", "val"],
-            // "args": ["--data", "seeds/imagenet-mini/val-correct-only", "--out-root", "adversarial-examples/resnet50/ImageNet/autoattack", "--batch-size", "32",  "--time-budget", "900"],
+            // "args": ["--data", "seeds/imagenet-mini/val-correct-only", "--out-root", "outputs/resnet50/ImageNet/autoattack", "--batch-size", "32",  "--time-budget", "900"],
             // "args": ["--mode", "train"],
             "justMyCode": false,
             "subProcess": true,

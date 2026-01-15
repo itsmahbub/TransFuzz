@@ -160,10 +160,28 @@ The analysis scripts aggregate these entries across configurations to generate a
 
 Scripts in `analysis/` aggregate experimental outputs and generate the tables and figures reported in the paper.
 
+### Table Rows
+
+Each script corresponds to a specific table in the paper.  
+Within each script, the fuzzing configurations to be aggregated (e.g., model, seed dataset, N, and target label, mutation gradient direction enabled/disabled) are specified explicitly as configuration variables at the top of the file.
+
+
 ```bash
-python analysis/aggregate_results.py
-python analysis/generate_tables.py
+python analysis/rq1_row.py (Table 1)
+python analysis/rq2a_row.py (Table 2a)
+python analysis/rq2b_row.py (Table 2b)
+python analysis/rq3a_row.py (Table 3a)
+python analysis/rq3b_row.py (Table 3b)
+python analysis/rq4_row.py (Table 4)
 ```
+
+### Figures
+
+The following scripts generate the figures reported in the paper using the TransFuzz experiment outputs:
+
+- `fault_counts_over_time.py` generates `Figure 2` by aggregating runtime statistics recorded during fuzzing (stored in the outputs/ directory).
+
+- `plot_images_best_worst_v2.py` generates Figure 3 by analyzing all generated fault-inducing inputs and ranking them using perceptual similarity metrics (LPIPS). The script visualizes the most and least perceptually natural adversarial faults discovered by TransFuzz and the Yuan et al. baseline.
 
 ## Representative Fault-Inducing Examples
 
