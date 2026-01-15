@@ -3,3 +3,4 @@ __pycache__
 google_service_account.json
 logs/
 models/imagenet/Linf/Salman2020Do_R50.pt
+.DS_Store
